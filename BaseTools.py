@@ -23,6 +23,10 @@ class BasicDevice:
             self.my_level = 0
         else:
             self.my_level = parent.my_level + 1
+        self.declared_ins = []
+        self.declared_outs = []
+        self.declared_signals = []
+        self.declared_components = []
 
     def add_device(self, child):
         self.children.append(child)
@@ -38,6 +42,18 @@ class BasicDevice:
             return self.render_vhdl()
         else:
             return self.render_verilog()
+
+    def input_is_declared(self, nm):
+        return nm in self.declared_ins
+
+    def output_is_declared(self, nm):
+        return nm in self.declared_outs
+
+    def signal_is_declared(self, nm):
+        return nm in self.declared_signals
+
+    def component_is_declared(self, nm):
+        return nm in self.declared_components
 
     def declare_vhdl(self):
         raise NotImplemented()
@@ -56,7 +72,6 @@ class BasicDevice:
 
     def render_verilog(self):
         raise NotImplemented()
-
 
 
 
