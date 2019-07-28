@@ -6,15 +6,18 @@ def validate_lang(s):
 
 
 class BasicDevice:
-    def __init__(self, name, comment, parent, **kwargs):
+    def __init__(self, name, comment="", parent=None, **kwargs):
         if "target_lang" in kwargs:
             self.target_lang = kwargs["target_lang"]
-        else:
+        elif parent is not None:
             self.target_lang = parent.target_lang
+        else:
+            self.target_lang = "vhdl"
         validate_lang(self.target_lang)
         self.children = []
         self.in_list = []
         self.out_list = []
+        self.signal_list = []
         self.comment = []
         self.comment.extend(comment)
         self.name = name

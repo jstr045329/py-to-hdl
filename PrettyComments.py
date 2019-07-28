@@ -9,3 +9,5 @@ class Comment(BasicDevice):
         else:
             self.los = los
 
+# todo: create a method in BasicDevice that creates an instance of this,
+# or somehow associates an instance with a device.
