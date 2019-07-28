@@ -125,12 +125,12 @@ class DelayModule(Entity):
         return y
 
 if __name__ == "__main__":
-    # uut = BasicDelay(name="myDelay", num_delays=8, clk="clk", rst="rst", width=4)
-    # for i in uut.declare_vhdl():
-    #     print(i)
-    # for i in uut.render_vhdl():
-    #     print(i)
-    # print(eol(4))
+    uut = BasicDelay(name="myDelay", num_delays=8, clk="clk", rst="rst", width=4)
+    for i in uut.declare_vhdl():
+        print(i)
+    for i in uut.render_vhdl():
+        print(i)
+    print(eol(4))
     uut2 = DelayModule(name="delayModule", num_delays=32, clk="clk", rst="rst", width=16)
     uut2.add_tap(4)
     uut2.add_tap([17, 26, 31])
