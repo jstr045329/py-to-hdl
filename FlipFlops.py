@@ -1,6 +1,10 @@
 from BaseTools import BasicDevice
 from WhiteSpaceTools import tab
+from WhiteSpaceTools import eol
 from DataTypes import basic_signal
+from Entity import Entity
+from IO import Input
+from IO import Output
 
 
 class FlipFlop(BasicDevice):
@@ -8,18 +12,26 @@ class FlipFlop(BasicDevice):
         super().__init__(**kwargs)
 
 
+def one_tap_name(n):
+    return "tap_" + ("%06d" % n)
+
+
+def one_signal_name(name, num):
+    return name + "_" + ("%06d" % num)
+
+
 def declare_1_signal(name, num, width):
-    return "signal " + name + "_" + ("%06d" % num) + " : " + basic_signal(width=width) + ";"
+    return "signal " + one_signal_name(name, num) + " : " + basic_signal(width=width) + ";"
 
 
 def reset_assignment(name, num):
-    return name + "_" + ("%06d" % num) + " <= (others => '0');"
+    return one_signal_name(name, num) + " <= (others => '0');"
 
 
 def delay_assignment(name, num):
-    one_str = name + "_" + ("%06d" % (num+1))
+    one_str = one_signal_name(name, num+1)
     one_str += " <= "
-    one_str += name + "_" + ("%06d" % num)
+    one_str += one_signal_name(name, num)
     one_str += ";"
     return one_str
 
@@ -57,9 +69,70 @@ class BasicDelay(FlipFlop):
         return y
 
 
+class DelayModule(Entity):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.children.append(BasicDelay(**kwargs))
+        self.taps = []
+        self.add_input(Input(name="clk", width=1, expression=""))
+        self.add_input(Input(name="rst", width=1, expression=""))
+        self.add_input(Input(name="d_in", width=self.children[0].width, expression=""))
+        self.add_output(Output(name="d_out", width=self.children[0].width, expression=""))
+        # self.add_output()
+
+    def add_tap(self, n):
+        if isinstance(n, list):
+            for one_tap in n:
+                self.taps.append(one_tap)
+                this_name = "tap_" + ("%06d"%one_tap)
+                self.add_output(Output(name=this_name, width=self.children[0].width, expression=""))
+        else:
+            assert(isinstance(n, int))
+            self.taps.append(n)
+            this_name = "tap_" + ("%06d" % n)
+            self.add_output(Output(name=this_name, width=self.children[0].width, expression=""))
+
+    def render_vhdl(self):
+        y = []
+        y.append("library IEEE;")
+        y.append("use IEEE.STD_LOGIC_1164.all;")
+        y.append(eol())
+        y.append("entity " + self.name + " is")
+        y.append("port(")
+        for i in range(len(self.in_list)):
+            one_thing = self.in_list[i]
+            one_str = tab() + one_thing.declare_vhdl()[0]
+            y.append(one_str)
+        for i in range(len(self.out_list)):
+            one_thing = self.out_list[i]
+            one_str = tab() + one_thing.declare_vhdl()[0]
+            if i == len(self.out_list) - 1:
+                one_str = one_str[:-1] + ");"
+            y.append(one_str)
+        y.append("end " + self.name + ";")
+        y.append(eol())
+        y.append("architecture " + self.name + "_arch of " + self.name + " is")
+        for i in self.children[0].declare_vhdl():
+            y.append(tab() + i)
+        y.append("begin")
+        for i in self.children[0].render_vhdl():
+            y.append(tab() + i)
+        y.append(tab() + one_signal_name(self.name, 0) + " <= d_in;")
+        for one_tap in self.taps:
+            y.append(tab() + one_tap_name(one_tap) + " <= " + one_signal_name(self.name, one_tap) + ";")
+        y.append(tab() + "d_out <= " + one_signal_name(self.name, self.children[0].num_delays) + ";")
+        y.append("end " + self.name + "_arch;")
+        return y
+
 if __name__ == "__main__":
-    uut = BasicDelay(name="myDelay", num_delays=8, clk="clk", rst="rst", width=4)
-    for i in uut.declare_vhdl():
-        print(i)
-    for i in uut.render_vhdl():
+    # uut = BasicDelay(name="myDelay", num_delays=8, clk="clk", rst="rst", width=4)
+    # for i in uut.declare_vhdl():
+    #     print(i)
+    # for i in uut.render_vhdl():
+    #     print(i)
+    # print(eol(4))
+    uut2 = DelayModule(name="delayModule", num_delays=32, clk="clk", rst="rst", width=16)
+    uut2.add_tap(4)
+    uut2.add_tap([17, 26, 31])
+    for i in uut2.render_vhdl():
         print(i)

@@ -16,7 +16,10 @@ class Signal(BasicDevice):
         # Set this to true for clks/resets that should not go through high fanout:
         self.enable_high_fanout = True
         self.force_high_fanout = False
-        self.expression = kwargs["expression"]
+        if "expression" in kwargs:
+            self.expression = kwargs["expression"]
+        else:
+            self.expression = None
 
     def disable_high_fanout(self):
         self.enable_high_fanout = False

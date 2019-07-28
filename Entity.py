@@ -1,27 +1,12 @@
 from BaseTools import BasicDevice
-from FlipFlops import BasicDelay
 
 
 class Entity(BasicDevice):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
-        if "dff" in kwargs:
-            self.dff = kwargs["dff"]
-        else:
-            self.dff = BasicDelay
-
-        if "tff" in kwargs:
-            self.tff = kwargs["tff"]
-        else:
-            # todo: Create tff constructor
-            self.srff = kwargs["srff"]
-
-        if "srff" in kwargs:
-            self.srff = kwargs["srff"]
-        else:
-            # todo: create srff constructor
-            self.srff = kwargs["srff"]
+        self.signals = []
+        self.components = []
+        self.port_maps = []
 
     def render_declaration_vhdl(self):
         raise NotImplemented()

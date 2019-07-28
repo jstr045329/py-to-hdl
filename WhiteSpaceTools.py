@@ -1,3 +1,6 @@
+def eol(n=1):
+    return "\n" * n
+
 
 def whitespace(n):
     return " " * n
