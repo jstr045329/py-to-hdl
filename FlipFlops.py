@@ -1,10 +1,15 @@
 from BaseTools import BasicDevice
 from WhiteSpaceTools import tab
+from DataTypes import basic_signal
 
 
 class FlipFlop(BasicDevice):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+
+def declare_1_signal(name, num, width):
+    return "signal " + name + "_" + ("%06d" % num) + " : " + basic_signal(width=width) + ";"
 
 
 def reset_assignment(name, num):
@@ -28,6 +33,13 @@ class BasicDelay(FlipFlop):
             self.num_delays = 1
         self.clk = kwargs["clk"]
         self.rst = kwargs["rst"]
+        self.width = kwargs["width"]
+
+    def declare_vhdl(self):
+        y = []
+        for i in range(0, self.num_delays+1):
+            y.append(declare_1_signal(self.name, i, self.width))
+        return y
 
     def render_vhdl(self):
         y = []
@@ -46,6 +58,8 @@ class BasicDelay(FlipFlop):
 
 
 if __name__ == "__main__":
-    uut = BasicDelay(name="myDelay", num_delays=8, clk="clk", rst="rst")
+    uut = BasicDelay(name="myDelay", num_delays=8, clk="clk", rst="rst", width=4)
+    for i in uut.declare_vhdl():
+        print(i)
     for i in uut.render_vhdl():
         print(i)
