@@ -57,6 +57,8 @@ class Signal(BasicDevice):
         pass
 
     def render_vhdl(self):
+        if self.expression is None:
+            return []
         y = ""
         y += self.name
         y += " <= "
@@ -73,5 +75,5 @@ if __name__ == "__main__":
 
 
 
-
+# todo: think about whether it's worthwhile to support default values for signals
 

@@ -1,22 +1,10 @@
 from BaseTools import BasicDevice
+from ParseExpression import parse_expression
 
 
 def validate_implementation_mode(mode):
     assert(mode == "integer" or
-           mode == "one_hot" or
-           mode == "redundant_3" or
-           mode == "redundant_5")
-
-
-def parse_condition(condition: str):
-    output_condition = ''
-    input_list = []
-    output_list = []
-    condition = condition.replace("(", " ( ")
-    condition = condition.replace(")", " ) ")
-    tok_list = condition.split()
-    # ACTION: Finish parsing condition
-    return output_condition, input_list, output_list
+           mode == "one_hot")
 
 
 class FiniteStateMachine(BasicDevice):

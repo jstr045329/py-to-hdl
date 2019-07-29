@@ -1,6 +1,10 @@
+def common_synth_datatype():
+    return "std_ulogic_vector"
+
+
 def basic_signal(width=1):
     assert(width >= 1)
-    return "std_ulogic_vector(" + str(width-1) + " downto 0)"
+    return common_synth_datatype() + "(" + str(width-1) + " downto 0)"
 
 
 def vhd_int(lower_lim=None, upper_lim=None):
