@@ -64,26 +64,31 @@ class Generic(BasicDevice):
 
 
 if __name__ == "__main__":
-    uut1 = Generic(name="MY_GENERIC", kind="int", default=42)
+    from CentralNameGen import CentralNameGen
+    cng = CentralNameGen()
+    uut1 = Generic(name="MY_GENERIC",
+                   kind="int",
+                   default=42,
+                   central_name_gen=cng)
     print(uut1.declare_vhdl()[0])
 
-    uut2 = Generic(name="ANOTHER_GENERIC", kind="int")
+    uut2 = Generic(name="ANOTHER_GENERIC", kind="int", central_name_gen=cng)
     print(uut2.declare_vhdl()[0])
 
-    uut3 = Generic(name="GENERIC_3", kind="time", default="1 ns")
+    uut3 = Generic(name="GENERIC_3", kind="time", default="1 ns", central_name_gen=cng)
     print(uut3.declare_vhdl()[0])
 
-    uut4 = Generic(name="GENERIC_4", kind="std_logic", default=78768768, width=32)
+    uut4 = Generic(name="GENERIC_4", kind="std_logic", default=78768768, width=32, central_name_gen=cng)
     print(uut4.declare_vhdl()[0])
 
-    uut5 = Generic(name="GENERIC_5", kind="std_logic", width=16)
+    uut5 = Generic(name="GENERIC_5", kind="std_logic", width=16, central_name_gen=cng)
     print(uut5.declare_vhdl()[0])
 
-    uut6 = Generic(name="GENERIC_6", kind="std_ulogic", default=320000291, width=48)
+    uut6 = Generic(name="GENERIC_6", kind="std_ulogic", default=320000291, width=48, central_name_gen=cng)
     print(uut6.declare_vhdl()[0])
 
-    uut7 = Generic(name="GENERIC_7", kind="std_ulogic", width=12)
+    uut7 = Generic(name="GENERIC_7", kind="std_ulogic", width=12, central_name_gen=cng)
     print(uut7.declare_vhdl()[0])
 
-    uut8 = Generic(name="GENERIC_8", kind="std_ulogic", default=all_ones_binary(32), width=32)
+    uut8 = Generic(name="GENERIC_8", kind="std_ulogic", default=all_ones_binary(32), width=32, central_name_gen=cng)
     print(uut8.declare_vhdl()[0])

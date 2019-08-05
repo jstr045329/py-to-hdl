@@ -67,7 +67,13 @@ class Signal(BasicDevice):
 
 
 if __name__ == "__main__":
-    uut = Signal(width=1, target_lang="vhdl", name="mySignal", expression="joe && harry || !fred")
+    from CentralNameGen import CentralNameGen
+    cng = CentralNameGen()
+    uut = Signal(width=1,
+                 target_lang="vhdl",
+                 name="mySignal",
+                 expression="joe && harry || !fred",
+                 central_name_gen=cng)
     for m in uut.declare_vhdl():
         print(m)
     for m in uut.render():

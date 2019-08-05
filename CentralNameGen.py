@@ -150,13 +150,14 @@ if __name__ == "__main__":
     print(uut.get_one_name(name_stub="pwm", name_type="signal"))
 
     try:
-        print(uut.get_one_name(name_stub="pwm", name_type="garbage_name"))
+        # Verify we catch an unrecognized name type:
+        print(uut.get_one_name(name_stub="pwm", name_type="garbage"))
     except ValueError as e:
         assert(str(e) == "Unrecognized name_type")
         print("Successfully caught an unrecognized name type")
 
-    # Catch an excessive number of calls:
     try:
+        # Verify we catch an excessive number of calls:
         uut.num = 1E20
         print(uut.get_one_name(name_stub="pwm"))
     except AssertionError as e:

@@ -72,12 +72,23 @@ class BasicDelay(FlipFlop):
 class DelayModule(Entity):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        from copy import deepcopy
+        new_kwargs = deepcopy(kwargs)
+        del(new_kwargs["name"])
+        del(new_kwargs["width"])
+        if "expression" in new_kwargs:
+            del(new_kwargs["expression"])
+        if "central_name_gen" in new_kwargs:
+            new_kwargs["central_name_gen"] = kwargs["central_name_gen"]
         self.children.append(BasicDelay(**kwargs))
         self.taps = []
-        self.add_input(Input(name="clk", width=1, expression=""))
-        self.add_input(Input(name="rst", width=1, expression=""))
-        self.add_input(Input(name="d_in", width=self.children[0].width, expression=""))
-        self.add_output(Output(name="d_out", width=self.children[0].width, expression=""))
+        self.add_input(Input(name="clk",
+                             width=1,
+                             expression="",
+                             **new_kwargs))
+        self.add_input(Input(name="rst", width=1, expression="", **new_kwargs))
+        self.add_input(Input(name="d_in", width=self.children[0].width, expression="", **new_kwargs))
+        self.add_output(Output(name="d_out", width=self.children[0].width, expression="", **new_kwargs))
         # self.add_output()
 
     def add_tap(self, n):
@@ -85,12 +96,18 @@ class DelayModule(Entity):
             for one_tap in n:
                 self.taps.append(one_tap)
                 this_name = "tap_" + ("%06d"%one_tap)
-                self.add_output(Output(name=this_name, width=self.children[0].width, expression=""))
+                self.add_output(Output(name=this_name,
+                                       width=self.children[0].width,
+                                       expression="",
+                                       central_name_gen=self.central_name_gen))
         else:
             assert(isinstance(n, int))
             self.taps.append(n)
             this_name = "tap_" + ("%06d" % n)
-            self.add_output(Output(name=this_name, width=self.children[0].width, expression=""))
+            self.add_output(Output(name=this_name,
+                                   width=self.children[0].width,
+                                   expression="",
+                                   central_name_gen=self.central_name_gen))
 
     def render_vhdl(self):
         y = []
@@ -124,15 +141,35 @@ class DelayModule(Entity):
         y.append("end " + self.name + "_arch;")
         return y
 
+
 if __name__ == "__main__":
-    uut = BasicDelay(name="myDelay", num_delays=8, clk="clk", rst="rst", width=4)
+    from CentralNameGen import CentralNameGen
+    cng = CentralNameGen()
+    uut = BasicDelay(name="myDelay",
+                     num_delays=8,
+                     clk="clk",
+                     rst="rst",
+                     width=4,
+                     central_name_gen=cng)
+
     for i in uut.declare_vhdl():
         print(i)
     for i in uut.render_vhdl():
         print(i)
     print(eol(4))
-    uut2 = DelayModule(name="delayModule", num_delays=32, clk="clk", rst="rst", width=16)
+    uut2 = DelayModule(name="delayModule",
+                       num_delays=32,
+                       clk="clk",
+                       rst="rst",
+                       width=16,
+                       central_name_gen=cng)
     uut2.add_tap(4)
     uut2.add_tap([17, 26, 31])
     for i in uut2.render_vhdl():
         print(i)
+
+# TODO Fix all unit tests
+
+
+
+
