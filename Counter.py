@@ -73,30 +73,35 @@ class Counter(BasicDevice):
         reset_val = Generic(name=rst_name(self.name),
                             width=kwargs["width"],
                             kind="std_ulogic",
-                            default=default_reset)
+                            default=default_reset,
+                            central_name_gen=self.central_name_gen)
 
         # Choose the value the counter goes to after it rolls over:
         init_val = Generic(name=init_name(self.name),
                            width=kwargs["width"],
                            kind="std_ulogic",
-                           default=default_init)
+                           default=default_init,
+                           central_name_gen=self.central_name_gen)
 
         rollover_threshold = Generic(name=rollover_name(self.name),
                                      width=kwargs["width"],
                                      target_lang="vhdl",
                                      kind="std_ulogic",
-                                     default=default_rollover)
+                                     default=default_rollover,
+                                     central_name_gen=self.central_name_gen)
 
         delta_obj = Generic(name=delta_name(self.name),
                             width=kwargs["width"],
                             target_lang="vhdl",
                             kind="std_ulogic",
-                            default=default_delta)
+                            default=default_delta,
+                            central_name_gen=self.central_name_gen)
 
         count_sig = Signal(name=self.name+"_counter",
                            width=kwargs["width"],
                            target_lang="vhdl",
-                           expression="")
+                           expression="",
+                           central_name_gen=self.central_name_gen)
 
         self.children.append(reset_val)
         self.children.append(init_val)
@@ -135,8 +140,10 @@ class Counter(BasicDevice):
 
 
 if __name__ == "__main__":
-    clk = Signal(width=1, target_lang="vhdl", name="clk", expression=None)
-    rst = Signal(width=1, target_lang="vhdl", name="rst", expression=None)
+    from CentralNameGen import CentralNameGen
+    cng = CentralNameGen()
+    clk = Signal(width=1, target_lang="vhdl", name="clk", expression=None, central_name_gen=cng)
+    rst = Signal(width=1, target_lang="vhdl", name="rst", expression=None, central_name_gen=cng)
     uut = Counter(name="uut",
                   width=32,
                   clk=clk,
@@ -144,12 +151,28 @@ if __name__ == "__main__":
                   init_val=32,
                   reset_val=64,
                   rollover_thresh=255,
-                  delta=7)
+                  delta=7,
+                  central_name_gen=cng)
     for i in uut.declare_vhdl():
         print(i)
     print("\n")
     for i in uut.render_vhdl():
         print(i)
 
+# todo: Think about what a better factoring of methods would be.
+#       The same 2 functions for every class is not working.
+#       Maybe entities need 1 set of methods, and everything else
+#       needs a different set of methods.
+# todo: Make declare_vhdl() return a tuple, (generics, ports, signals)
+# todo: Make a class that spawns a new entity
+
+# Write a list of every VHDL pattern I want to use, and look at
+# what needs to get passed into what.
+
+# Think about what classes I should write
+# For example, should I write a class for process?
+# Write a full list of all the
+
+# Research how to attract volunteers
 
 

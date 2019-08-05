@@ -41,11 +41,15 @@ def hex_literal(num_digits, n=1, use_underscores=True):
     return 'X"' + y + '"'
 
 
-def all_ones_binary(num_digits):
+def all_ones_binary(num_digits, use_underscores=True):
+    if use_underscores:
+        return underscorify("1"*num_digits, 'B"')
     return 'B"' + ("1" * num_digits) + '"'
 
 
-def all_ones_hex(num_digits):
+def all_ones_hex(num_digits, use_underscores=True):
+    if use_underscores:
+        return underscorify("1" * num_digits, 'X"')
     return 'X"' + ("F" * num_digits) + '"'
 
 
