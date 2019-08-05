@@ -1,5 +1,8 @@
+import os
+
+
 def eol(n=1):
-    return "\n" * n
+    return os.linesep * n
 
 
 def whitespace(n):
