@@ -8,6 +8,7 @@ can be used for synthesis but the wisdom in doing so is complicated. Therefore,
 using variables for synthesis is not recommended if the end design must work
 in both Verilog and VHDL."""
 from validate_lang import comment_start
+from eol import eol
 
 
 class CentralNameGen:
@@ -48,8 +49,8 @@ class CentralNameGen:
             self.format_str += "d"
             self.num_digits = kwargs["num_digits"]
         else:
-            self.format_str = "%06d"
-            self.num_digits = 6
+            self.format_str = "%04d"
+            self.num_digits = 4
         self.short_comments = {}
         self.long_comments = {}
 
@@ -58,11 +59,21 @@ class CentralNameGen:
         else:
             self.max_comment_len = 32
 
+        if "column_width" in kwargs:
+            self.column_width = kwargs["column_width"]
+        else:
+            self.column_width = 80
+
+        self.documentation_filename = "./documentation.txt"
+        # Erase anything in the documentation file:
+        with open(self.documentation_filename, 'w') as f:
+            f.write("")
+
     def get_one_name(self, name_stub, *args, **kwargs):
         self.num += 1
 
         # Guarantee that the resulting number field will fit in the allotted number of digits:
-        assert(len(str(self.num)) <= self.num_digits)
+        assert(len("%d" % self.num) <= self.num_digits)
 
         one_name = name_stub + "_n" + (self.format_str % self.num)
 
@@ -88,12 +99,18 @@ class CentralNameGen:
             self.short_comments[self.num] = kwargs["short_comment"]
 
         if "docstring" in kwargs:
-            self.long_comments[self.num] = kwargs["docstring"]
+            self.long_comments[self.num] = \
+                self.make_docstring_tag(self.num) + kwargs["docstring"]
             if self.num not in self.short_comments.keys():
                 self.short_comments[self.num] = ""
             self.short_comments[self.num] += self.make_docstring_tag(self.num)
 
         return one_name
+
+    def add_documentation(self, n, docstr):
+        if n not in self.long_comments.keys():
+            self.long_comments[n] = ''
+        self.long_comments[n] += docstr + eol
 
     def make_docstring_tag(self, n):
         """Generates a tag that allows short, inline comments to be associated
@@ -104,10 +121,16 @@ class CentralNameGen:
         return comment_start(target_lang) + self.short_comments[which_key]
 
     def render_documentation(self):
+        """Call this once after all components have been added to design."""
         y = []
         for i in self.long_comments.keys():
+            y.append(eol)
+            y.append(self.make_docstring_tag(i))
             y.append(self.long_comments[i])
-            pass
+        with open(self.documentation_filename, 'a') as f:
+            for i in self.long_comments.keys():
+                f.write(self.long_comments[i])
+                f.write(eol)
 
 
 if __name__ == "__main__":
@@ -128,7 +151,13 @@ if __name__ == "__main__":
 
     try:
         print(uut.get_one_name(name_stub="pwm", name_type="garbage_name"))
-    except Exception as e:
+    except ValueError as e:
         assert(str(e) == "Unrecognized name_type")
         print("Successfully caught an unrecognized name type")
 
+    # Catch an excessive number of calls:
+    try:
+        uut.num = 1E20
+        print(uut.get_one_name(name_stub="pwm"))
+    except AssertionError as e:
+        print("Successfully caught a really high number")
