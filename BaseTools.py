@@ -1,8 +1,5 @@
 """Contains the superclass from which all other device classes are derived."""
-
-
-def validate_lang(s):
-    assert(s == "vhdl" or s == "verilog")
+from validate_lang import validate_lang
 
 
 class BasicDevice:
@@ -30,6 +27,7 @@ class BasicDevice:
         self.declared_outs = []
         self.declared_signals = []
         self.declared_components = []
+        self.central_name_gen = kwargs["central_name_gen"]
 
     def add_device(self, child):
         self.children.append(child)
