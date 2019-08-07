@@ -28,6 +28,23 @@ class BasicDevice:
         self.declared_signals = []
         self.declared_components = []
         self.central_name_gen = kwargs["central_name_gen"]
+        self.use_bit_when_possible = False          # todo: use this to render bit(vector) rather than std_logic(vector).
+        self.default_resolved = False
+        self.initialize_signals_to_zero = False     # todo: use this to assign default values to signals
+
+    def get_default_datatype(self, width):
+        # todo: replace the static .py file with this
+        assert(width >= 1)
+        if self.use_bit_when_possible:
+            return "bit_vector(" + str(width-1) + " downto 0)"
+        if self.default_resolved:
+            return "std_logic_vector(" + str(width-1) + " downto 0)"
+        return "std_ulogic_vector(" + str(width-1) + " downto 0)"
+
+    def get_datatype_root(self):
+        x = self.get_default_datatype(width=1)
+        stop_idx = x.find("(")
+        return x[:stop_idx]
 
     def add_device(self, child):
         self.children.append(child)
